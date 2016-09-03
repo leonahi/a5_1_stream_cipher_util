@@ -15,6 +15,7 @@ RM     = rm
 EXEC   = a5
 OBJECTS = \
     main.o \
+	helper.o
 
 .PHONEY: clean
 .PHONEY: all
@@ -25,6 +26,9 @@ OBJECTS = \
 all: $(OBJECTS) compile acknowledge
 
 main.o : main.cpp
+	$(CPP) -g -c $^
+
+helper.o : helper.cpp
 	$(CPP) -g -c $^
 
 compile:
