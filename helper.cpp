@@ -88,15 +88,33 @@ bool get_a5_key(unsigned long LFSR1, unsigned long LFSR2, unsigned long LFSR3)
     return parity(LFSR1 & LFSR1_OUTPUT_BIT) ^ parity(LFSR2 & LFSR2_OUTPUT_BIT) ^ parity(LFSR3 & LFSR3_OUTPUT_BIT);
 }
 
-void generate_keystream(unsigned short &keystream, unsigned long LFSR1, unsigned long LFSR2, unsigned long LFSR3)
+void generate_keystream_32(unsigned long &keystream, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
 {
     register bool bit;
     keystream = 0;
-    for(register int i=0; i<16; ++i)
+    for(register int i=0; i<32; ++i)
     {
         conditional_shift_left_lfsr(LFSR1, LFSR2, LFSR3);
         bit = get_a5_key(LFSR1, LFSR2, LFSR3);
         keystream = ((keystream << 1)|bit);
-        cout << bit << " : "<<  bitset<16>(keystream) << endl;
+        //cout << bit << " : "<<  bitset<32>(keystream) << endl;
     }
+}
+
+void generate_keystream_8(unsigned char &keystream, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
+{
+    register bool bit;
+    keystream = 0;
+    for(register int i=0; i<8; ++i)
+    {
+        conditional_shift_left_lfsr(LFSR1, LFSR2, LFSR3);
+        bit = get_a5_key(LFSR1, LFSR2, LFSR3);
+        keystream = ((keystream << 1)|bit);
+        //cout << bit << " : "<<  bitset<8>(keystream) << endl;
+    }
+}
+
+void encrypt_file(char plain_char, unsigned long LFSR1, unsigned long LFSR2, unsigned long LFSR3)
+{
+    
 }

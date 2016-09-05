@@ -1,9 +1,12 @@
 #include <iostream>
+#include <fstream>
 #include <bitset>
 
 using namespace std;
 
 #define DEBUG
+
+#define NUM_CHAR (1024*200)
 
 // length of LFSR stored as bitmask
 #define LFSR1_BITMASK 0x0007FFFF  // 19 bit LFSR 
