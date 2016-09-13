@@ -114,7 +114,146 @@ void generate_keystream_8(unsigned char &keystream, unsigned long &LFSR1, unsign
     }
 }
 
-void encrypt_file(char plain_char, unsigned long LFSR1, unsigned long LFSR2, unsigned long LFSR3)
+void encrypt_file(char *plaintext_filename, char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
 {
+    clock_t start, end;
+    double total_t;
+    char file_char;
+    unsigned long num_plain_text_char = 0;
+    unsigned char keystream_8 = 0;
+    unsigned char cipher_text_8 = 0;
+    unsigned char *plain_text_buffer;
+    plain_text_buffer = new unsigned char[NUM_CHAR];
     
+    ifstream in_file(plaintext_filename); 
+    if(!in_file.is_open())
+    {
+        cout << endl << "-----------------------------------------------------------------------" << endl;
+        cout << "Error: Unable to open plaintext input file" << plaintext_filename << endl;
+        cout << endl << "-----------------------------------------------------------------------" << endl;
+        exit(1);
+    }
+    
+    fstream out_file;
+    out_file.open(ciphertext_filename, fstream::out);
+    
+    /*
+    while(!in_file.eof())
+    {
+        //in_file >> noskipws >> file_char; 
+        for(int i=0; i<NUM_CHAR; ++i)
+        {
+            in_file.get(file_char);
+            cout << file_char;
+            ++num_plain_text_char;
+        }
+    }
+    cout << "Number of plain text character : " << num_plain_text_char << endl;
+    in_file.close();
+    return;
+    */
+    cout << "Starting Encryption..." << endl;
+    
+    //start = clock();
+    a5_init(key, FRAME_NUM, LFSR1, LFSR2, LFSR3);
+    
+    //while(!in_file.eof())
+    {
+        
+        for(int i=0; i<NUM_CHAR; ++i)
+        {
+            //in_file >> noskipws >> file_char;
+            //in_file >> noskipws >> file_char;
+            in_file.get(file_char);
+            plain_text_buffer[i] = file_char;
+            //cout << plain_text_buffer[i] << " : ";
+            ++num_plain_text_char;
+        }
+        start = clock();
+        for(int i=0; i<NUM_CHAR; ++i)
+        {
+            generate_keystream_8(keystream_8, LFSR1, LFSR2, LFSR3);
+            cipher_text_8 = plain_text_buffer[i] ^ keystream_8;
+            //cout << cipher_text_8 << " : " << (cipher_text_8 ^ keystream_8) <<endl;
+            out_file << cipher_text_8;
+        }
+        end = clock();
+    }
+    //cout << endl << endl;
+    //end = clock();
+    
+    // Profiling results
+    cout << "Encryption Done!" << endl;
+    total_t = (double)(end-start)/CLOCKS_PER_SEC;
+    cout << "Total time for encryption : " << total_t << " seconds" <<endl;
+    cout << "Speed in Mbps : " << ((num_plain_text_char*8)/total_t)/1000000 << endl;
+    cout << "Total number of bits : " << (num_plain_text_char*8) << endl;
+    
+    delete[] plain_text_buffer;
+    
+    // Close files
+    in_file.close();
+    out_file.close();
+}
+
+void decrypt_file(char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
+{
+    clock_t start, end;
+    double total_t;
+    register char file_char;
+    register unsigned long num_plain_text_char = 0;
+    register unsigned char keystream_8 = 0;
+    register unsigned char plain_text_8 = 0;
+    unsigned char *text_buffer;
+    text_buffer = new unsigned char[NUM_CHAR];
+    
+    ifstream in_file(ciphertext_filename); 
+    if(!in_file.is_open())
+    {
+        cout << endl << "-----------------------------------------------------------------------" << endl;
+        cout << "Error: Unable to open cipher text input file" << ciphertext_filename << endl;
+        cout << endl << "-----------------------------------------------------------------------" << endl;
+        exit(1);
+    }
+    
+    fstream out_file;
+    out_file.open("decrypt_file.txt", fstream::out);
+    
+    cout << "Starting Decryption..." << endl;
+    
+    start = clock();
+    a5_init(key, FRAME_NUM, LFSR1, LFSR2, LFSR3);
+    
+    while(!in_file.eof())
+    {
+        for(int i=0; i<NUM_CHAR; ++i)
+        {
+            in_file >> noskipws >> file_char;
+            //in_file >> noskipws >> file_char;
+            //in_file.get(file_char);
+            text_buffer[i] = file_char;
+            //cout << text_buffer[i] << " : ";
+            ++num_plain_text_char;
+        }
+        for(int i=0; i<NUM_CHAR; ++i)
+        {
+            generate_keystream_8(keystream_8, LFSR1, LFSR2, LFSR3);
+            plain_text_8 = text_buffer[i] ^ keystream_8;
+            //cout << plain_text_8 << endl;
+            out_file << plain_text_8;
+        }
+    }
+    end = clock();
+    
+    // Profiling results
+    cout << "Decryption Done!" << endl;
+    total_t = (double)(end-start)/CLOCKS_PER_SEC;
+    cout << "Total time for decryption : " << total_t << " seconds" <<endl;
+    cout << "Total number of bits : " << (num_plain_text_char*8) << endl;
+    
+    delete[] text_buffer;
+    
+    // Close files
+    in_file.close();
+    out_file.close();
 }

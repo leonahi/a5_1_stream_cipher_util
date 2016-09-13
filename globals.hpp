@@ -6,7 +6,11 @@ using namespace std;
 
 #define DEBUG
 
-#define NUM_CHAR (1024*200)
+//#define NUM_CHAR (1)
+#define NUM_CHAR (1024*196)
+
+// Frame number
+#define FRAME_NUM 22
 
 // length of LFSR stored as bitmask
 #define LFSR1_BITMASK 0x0007FFFF  // 19 bit LFSR 
