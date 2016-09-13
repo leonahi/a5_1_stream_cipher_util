@@ -3,6 +3,7 @@ Implementation of A5/1 Stream Cipher
 
 
 ### Usage
+##### make
 ##### ./a5 plain_text_in_filename cipher_text_out_filename passphrase
 
 ### Test file
