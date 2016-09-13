@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     }
     
     encrypt_file(argv[1], argv[2], key, LFSR1, LFSR2, LFSR3);
-    //decrypt_file(argv[2], key, LFSR1, LFSR2, LFSR3);
+    decrypt_file(argv[2], key, LFSR1, LFSR2, LFSR3);
     
     return 0;
 }
