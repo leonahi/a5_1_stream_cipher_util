@@ -154,10 +154,10 @@ void encrypt_file(char *plaintext_filename, char *ciphertext_filename, char *key
     */
     cout << "Starting Encryption..." << endl;
     
-    //start = clock();
+    start = clock();
     a5_init(key, FRAME_NUM, LFSR1, LFSR2, LFSR3);
     
-    //while(!in_file.eof())
+    while(!in_file.eof())
     {
         
         for(int i=0; i<NUM_CHAR; ++i)
@@ -169,7 +169,6 @@ void encrypt_file(char *plaintext_filename, char *ciphertext_filename, char *key
             //cout << plain_text_buffer[i] << " : ";
             ++num_plain_text_char;
         }
-        start = clock();
         for(int i=0; i<NUM_CHAR; ++i)
         {
             generate_keystream_8(keystream_8, LFSR1, LFSR2, LFSR3);
@@ -177,10 +176,9 @@ void encrypt_file(char *plaintext_filename, char *ciphertext_filename, char *key
             //cout << cipher_text_8 << " : " << (cipher_text_8 ^ keystream_8) <<endl;
             out_file << cipher_text_8;
         }
-        end = clock();
     }
     //cout << endl << endl;
-    //end = clock();
+    end = clock();
     
     // Profiling results
     cout << "Encryption Done!" << endl;
