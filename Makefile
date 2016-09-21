@@ -9,8 +9,8 @@
 #----------------------------------------------------------------------------
 
 CPP    = g++ -std=c++11
-CFLAGS = -pg
-OFLAGS = -pg 
+CFLAGS = -g
+OFLAGS = -g
 RM     = rm
 
 TEST_FILE = medium_test_file.txt 

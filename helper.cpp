@@ -36,66 +36,22 @@ bool parity_2(unsigned char reg)
 bool majority(unsigned long LFSR1, unsigned long LFSR2, unsigned long LFSR3)
 {
     register unsigned int sum=0;
-    
-    if ((LFSR1 & LFSR1_CLK_BIT) != 0)
-        sum += 1;
-    if ((LFSR2 & LFSR2_CLK_BIT) != 0)
-        sum += 1;
-    if ((LFSR3 & LFSR3_CLK_BIT) != 0)
-        sum += 1;
-    
-    //return ((LFSR1 & LFSR1_CLK_BIT) ^ (LFSR2 & LFSR2_CLK_BIT) ^ (LFSR3 & LFSR3_CLK_BIT)); 
-    //return (parity(LFSR1 & LFSR1_CLK_BIT) + parity(LFSR2 & LFSR2_CLK_BIT) + parity(LFSR3 & LFSR3_CLK_BIT));
+    sum = ((LFSR1 >> LFSR1_CLK_BITP) & 0x01) + ((LFSR2 >> LFSR2_CLK_BITP) & 0x01) + ((LFSR3 >> LFSR3_CLK_BITP) & 0x01);
     return ((sum >=2) ? 1 : 0);
 }
 
 void shift_left_lfsr(unsigned long &reg, unsigned long mask, unsigned long taps, unsigned short int lfsr_no)
 {
-    register unsigned long shifted_bit = reg & taps;
+    register unsigned long tap_bits = reg & taps;
     register unsigned short sum=0;
     reg = (reg << 1) & mask;
     
     if (lfsr_no == 1)   
-        reg |= parity_8((shifted_bit >> TAP1_BIT_13));
+        reg |= parity_8((tap_bits >> TAP1_BIT_13));
     else if (lfsr_no == 2)
-        reg |= parity_2((shifted_bit >> TAP2_BIT_20));
+        reg |= parity_2((tap_bits >> TAP2_BIT_20));
     else
-        reg |= parity_16((shifted_bit >> TAP3_BIT_07));
-    
-    /*
-    if (lfsr_no == 1)
-    {
-        if((shifted_bit & LFSR1_TAP_BITP_13) != 0)
-            sum += 1;
-        if((shifted_bit & LFSR1_TAP_BITP_16) != 0)
-            sum += 1;
-        if((shifted_bit & LFSR1_TAP_BITP_17) != 0)
-            sum += 1;
-        if((shifted_bit & LFSR1_TAP_BITP_18) != 0)
-            sum += 1;
-        reg |= (sum % 2);
-    }
-    else if (lfsr_no == 2)
-    {
-        if((shifted_bit & LFSR2_TAP_BITP_20) != 0)
-            sum += 1;
-        if((shifted_bit & LFSR2_TAP_BITP_21) != 0)
-            sum += 1;
-        reg |= (sum % 2);
-    }
-    else
-    {
-        if((shifted_bit & LFSR3_TAP_BITP_7) != 0)
-            sum += 1;
-        if((shifted_bit & LFSR3_TAP_BITP_20) != 0)
-            sum += 1;
-        if((shifted_bit & LFSR3_TAP_BITP_21) != 0)
-            sum += 1;
-        if((shifted_bit & LFSR3_TAP_BITP_22) != 0)
-            sum += 1;
-        reg |= (sum % 2);
-    } 
-    */
+        reg |= parity_16((tap_bits >> TAP3_BIT_07));
     //cout << "TAP bits : " << " : "<<  bitset<32>(shifted_bit >> TAP3_BIT_07) << endl;
     //reg |= parity(shifted_bit);
 }
@@ -105,12 +61,20 @@ void conditional_shift_left_lfsr(unsigned long &LFSR1, unsigned long &LFSR2, uns
 {
     register bool m=majority(LFSR1, LFSR2, LFSR3);
     //register bool m=1;
-    if (((LFSR1 & LFSR1_CLK_BIT)!=0) == m)
+    if (((LFSR1 & LFSR1_CLK_BITMASK)!=0) == m)
         shift_left_lfsr(LFSR1, LFSR1_BITMASK, LFSR1_TAP_BITMASK, 1);
-    if (((LFSR2 & LFSR2_CLK_BIT)!=0) == m)
+    if (((LFSR2 & LFSR2_CLK_BITMASK)!=0) == m)
         shift_left_lfsr(LFSR2, LFSR2_BITMASK, LFSR2_TAP_BITMASK, 2);
-    if (((LFSR3 & LFSR3_CLK_BIT)!=0) == m)
+    if (((LFSR3 & LFSR3_CLK_BITMASK)!=0) == m)
+        shift_left_lfsr(LFSR3, LFSR3_BITMASK, LFSR3_TAP_BITMASK, 3); 
+    /*
+    if (((LFSR1 & LFSR1_CLK_BITMASK)!=0) == m)
+        shift_left_lfsr(LFSR1, LFSR1_BITMASK, LFSR1_TAP_BITMASK, 1);
+    if (((LFSR2 & LFSR2_CLK_BITMASK)!=0) == m)
+        shift_left_lfsr(LFSR2, LFSR2_BITMASK, LFSR2_TAP_BITMASK, 2);
+    if (((LFSR3 & LFSR3_CLK_BITMASK)!=0) == m)
         shift_left_lfsr(LFSR3, LFSR3_BITMASK, LFSR3_TAP_BITMASK, 3);   
+    */
 }
 
 // Clock all LFSRs without condition
@@ -162,15 +126,7 @@ void a5_init(char *key, unsigned long frame_no, unsigned long &LFSR1, unsigned l
 
 bool get_a5_key(unsigned long LFSR1, unsigned long LFSR2, unsigned long LFSR3)
 {
-    unsigned short int sum=0;
-    if((LFSR1 & LFSR1_OUTPUT_BIT) != 0)
-        sum += 1;
-    if((LFSR2 & LFSR2_OUTPUT_BIT) != 0)
-        sum += 1;
-    if((LFSR3 & LFSR3_OUTPUT_BIT) != 0)
-        sum += 1;
-    return (sum % 2);
-    //return parity(LFSR1 & LFSR1_OUTPUT_BIT) ^ parity(LFSR2 & LFSR2_OUTPUT_BIT) ^ parity(LFSR3 & LFSR3_OUTPUT_BIT);
+    return (((LFSR1 >> LFSR1_WIDTH) ^ (LFSR2 >> LFSR2_WIDTH) ^ (LFSR3 >> LFSR3_WIDTH)) & 0x01);
 }
 
 void generate_keystream_32(unsigned long &keystream, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
@@ -239,10 +195,10 @@ void encrypt_file(char *plaintext_filename, char *ciphertext_filename, char *key
     */
     cout << "Starting Encryption..." << endl;
     
-    start = clock();
+    //start = clock();
     a5_init(key, FRAME_NUM, LFSR1, LFSR2, LFSR3);    
-    while(!in_file.eof())
-    //for(int j=0; j<1; ++j)
+    //while(!in_file.eof())
+    for(int j=0; j<1; ++j)
     {
         
         for(int i=0; i<NUM_CHAR; ++i)
@@ -254,7 +210,7 @@ void encrypt_file(char *plaintext_filename, char *ciphertext_filename, char *key
             //cout << plain_text_buffer[i] << " : ";
             ++num_plain_text_char;
         }
-        //start = clock();
+        start = clock();
         for(int i=0; i<NUM_CHAR; ++i)
         {
             generate_keystream_8(keystream_8, LFSR1, LFSR2, LFSR3);
@@ -263,10 +219,10 @@ void encrypt_file(char *plaintext_filename, char *ciphertext_filename, char *key
             //cout << cipher_text_8 << " : " << (cipher_text_8 ^ keystream_8) <<endl;
             //out_file << cipher_text_8;
         }
-        //end = clock();
+        end = clock();
     }
     //cout << endl << endl;
-    end = clock();
+    //end = clock();
     
     // Profiling results
     cout << "Encryption Done!" << endl;
@@ -343,3 +299,53 @@ void decrypt_file(char *ciphertext_filename, char *key, unsigned long &LFSR1, un
     in_file.close();
     out_file.close();
 }
+
+
+    /*
+    if (lfsr_no == 1)
+    {
+        if((shifted_bit & LFSR1_TAP_BITP_13) != 0)
+            sum += 1;
+        if((shifted_bit & LFSR1_TAP_BITP_16) != 0)
+            sum += 1;
+        if((shifted_bit & LFSR1_TAP_BITP_17) != 0)
+            sum += 1;
+        if((shifted_bit & LFSR1_TAP_BITP_18) != 0)
+            sum += 1;
+        reg |= (sum % 2);
+    }
+    else if (lfsr_no == 2)
+    {
+        if((shifted_bit & LFSR2_TAP_BITP_20) != 0)
+            sum += 1;
+        if((shifted_bit & LFSR2_TAP_BITP_21) != 0)
+            sum += 1;
+        reg |= (sum % 2);
+    }
+    else
+    {
+        if((shifted_bit & LFSR3_TAP_BITP_7) != 0)
+            sum += 1;
+        if((shifted_bit & LFSR3_TAP_BITP_20) != 0)
+            sum += 1;
+        if((shifted_bit & LFSR3_TAP_BITP_21) != 0)
+            sum += 1;
+        if((shifted_bit & LFSR3_TAP_BITP_22) != 0)
+            sum += 1;
+        reg |= (sum % 2);
+    } 
+    */
+    
+    
+        //unsigned short int sum=0;
+    
+    /*
+    if((LFSR1 & LFSR1_OUTPUT_BIT) != 0)
+        sum += 1;
+    if((LFSR2 & LFSR2_OUTPUT_BIT) != 0)
+        sum += 1;
+    if((LFSR3 & LFSR3_OUTPUT_BIT) != 0)
+        sum += 1;
+    return (sum % 2);
+    */
+    //return parity(LFSR1 & LFSR1_OUTPUT_BIT) ^ parity(LFSR2 & LFSR2_OUTPUT_BIT) ^ parity(LFSR3 & LFSR3_OUTPUT_BIT);
