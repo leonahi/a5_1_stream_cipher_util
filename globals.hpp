@@ -7,7 +7,7 @@ using namespace std;
 #define DEBUG
 
 //#define NUM_CHAR (1)
-#define NUM_CHAR (1024*16)
+#define NUM_CHAR (1024*512)
 
 // Frame number
 #define FRAME_NUM 22
@@ -28,9 +28,26 @@ using namespace std;
 #define LFSR3_TAP_BITMASK 0x00700080  // LFSR_3 tap bits - 22,21,20,7
 
 // output bit of lfsr
-#define LFSR1_OUTPUT_BIT  0x00040000  // LFSR_1 output bit 18 
-#define LFSR2_OUTPUT_BIT  0x00200000  // LFSR_2 output bit 21
-#define LFSR3_OUTPUT_BIT  0x00400000  // LFSR_3 output bit 23
+#define LFSR1_OUTPUT_BIT 0x00040000  // LFSR_1 output bit 18 
+#define LFSR2_OUTPUT_BIT 0x00200000  // LFSR_2 output bit 21
+#define LFSR3_OUTPUT_BIT 0x00400000  // LFSR_3 output bit 23
+
+
+// bit position tap bits LFSR1
+#define LFSR1_TAP_BITP_13 0x0002000
+#define LFSR1_TAP_BITP_16 0x0010000
+#define LFSR1_TAP_BITP_17 0x0020000
+#define LFSR1_TAP_BITP_18 0x0040000
+
+// bit position tap bits LFSR2
+#define LFSR2_TAP_BITP_20 0x0100000
+#define LFSR2_TAP_BITP_21 0x0200000
+
+// bit position tap bits LFSR3
+#define LFSR3_TAP_BITP_7  0x0000080
+#define LFSR3_TAP_BITP_20 0x0100000
+#define LFSR3_TAP_BITP_21 0x0200000
+#define LFSR3_TAP_BITP_22 0x0400000
 
 
 // XOR operation
@@ -59,7 +76,7 @@ using namespace std;
 #define TAP2_BIT_21 21
 
 // Tap bits LFSR3
-#define TAP2_BIT_07 7
-#define TAP2_BIT_20 20
-#define TAP2_BIT_21 21
-#define TAP2_BIT_22 22
+#define TAP3_BIT_07 7
+#define TAP3_BIT_20 20
+#define TAP3_BIT_21 21
+#define TAP3_BIT_22 22

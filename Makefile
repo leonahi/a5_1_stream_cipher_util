@@ -9,8 +9,11 @@
 #----------------------------------------------------------------------------
 
 CPP    = g++ -std=c++11
-CFLAGS = -g -Wall -o3
+CFLAGS = -pg
+OFLAGS = -pg 
 RM     = rm
+
+TEST_FILE = medium_test_file.txt 
 
 EXEC   = a5
 OBJECTS = \
@@ -26,20 +29,26 @@ OBJECTS = \
 all: $(OBJECTS) compile acknowledge
 
 main.o : main.cpp
-	$(CPP) -g -c $^
+	$(CPP) $(OFLAGS) -c $^
 
 helper.o : helper.cpp
-	$(CPP) -g -c $^
+	$(CPP) $(OFLAGS) -c $^
 
 compile:
 	$(CPP) $(CFLAGS) $(OBJECTS) -o $(EXEC)
 
+prof: run
+	gprof $(EXEC) gmon.out > analysis.txt
+
+
+run:
+	./$(EXEC) $(TEST_FILE) cipher_text.txt nahitpawar
+	
 clean:
 	$(RM) $(OBJECTS) $(EXEC)
+	$(RM) *~
 
 acknowledge:
 	@echo " "
-	@echo " "
-	@echo "Perfecto! Compilation Done Successfully........"
-	@echo " "
+	@echo "Perfecto! Compilation Done Successfully..."
 	@echo " "
