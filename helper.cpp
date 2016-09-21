@@ -47,25 +47,22 @@ void shift_left_lfsr(unsigned long &reg, unsigned long mask, unsigned long taps,
     reg = (reg << 1) & mask;
     
     if (lfsr_no == 1)   
-        reg |= parity_8((tap_bits >> TAP1_BIT_13));
+        reg |= ( ( (reg >> TAP1_13_BITP) ^ (reg >> TAP1_16_BITP) ^ (reg >> TAP1_17_BITP) ^ (reg >> TAP1_18_BITP) ) & 0x1 );
     else if (lfsr_no == 2)
-        reg |= parity_2((tap_bits >> TAP2_BIT_20));
+        reg |= (((reg >> TAP2_20_BITP) ^ (reg >> TAP2_21_BITP)) & 0x1);
     else
-        reg |= parity_16((tap_bits >> TAP3_BIT_07));
-    //cout << "TAP bits : " << " : "<<  bitset<32>(shifted_bit >> TAP3_BIT_07) << endl;
-    //reg |= parity(shifted_bit);
+        reg |= ( ( (reg >> TAP3_07_BITP) ^ (reg >> TAP3_20_BITP) ^ (reg >> TAP3_21_BITP) ^ (reg >> TAP3_22_BITP) ) & 0x1 );
 }
 
 // Clock all LFSRs conditionaly
 void conditional_shift_left_lfsr(unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
 {
     register bool m=majority(LFSR1, LFSR2, LFSR3);
-    //register bool m=1;
-    if (((LFSR1 & LFSR1_CLK_BITMASK)!=0) == m)
+    if (((LFSR1 >> LFSR1_CLK_BITP) & 0x01) == m)
         shift_left_lfsr(LFSR1, LFSR1_BITMASK, LFSR1_TAP_BITMASK, 1);
-    if (((LFSR2 & LFSR2_CLK_BITMASK)!=0) == m)
+    if (((LFSR2 >> LFSR2_CLK_BITP) & 0x01) == m)
         shift_left_lfsr(LFSR2, LFSR2_BITMASK, LFSR2_TAP_BITMASK, 2);
-    if (((LFSR3 & LFSR3_CLK_BITMASK)!=0) == m)
+    if (((LFSR3 >> LFSR3_CLK_BITP) & 0x01) == m)
         shift_left_lfsr(LFSR3, LFSR3_BITMASK, LFSR3_TAP_BITMASK, 3); 
     /*
     if (((LFSR1 & LFSR1_CLK_BITMASK)!=0) == m)
@@ -155,7 +152,99 @@ void generate_keystream_8(unsigned char &keystream, unsigned long &LFSR1, unsign
     }
 }
 
-void encrypt_file(char *plaintext_filename, char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
+void encrypt32_file(char *plaintext_filename, char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
+{
+    clock_t start, end;
+    double total_t;
+    char file_char;
+    unsigned long num_plain_text_char = 0;
+    unsigned long keystream_32 = 0;
+    unsigned long cipher_text_32 = 0;
+    unsigned long *plain_text_buffer;
+    plain_text_buffer = new unsigned long[(NUM_CHAR >> 2)];
+    
+    ifstream in_file(plaintext_filename); 
+    if(!in_file.is_open())
+    {
+        cout << endl << "-----------------------------------------------------------------------" << endl;
+        cout << "Error: Unable to open plaintext input file" << plaintext_filename << endl;
+        cout << endl << "-----------------------------------------------------------------------" << endl;
+        exit(1);
+    }
+    
+    fstream out_file;
+    out_file.open(ciphertext_filename, fstream::out);
+    
+    /*
+    while(!in_file.eof())
+    {
+        //in_file >> noskipws >> file_char; 
+        for(int i=0; i<NUM_CHAR; ++i)
+        {
+            in_file.get(file_char);
+            cout << file_char;
+            ++num_plain_text_char;
+        }
+    }
+    cout << "Number of plain text character : " << num_plain_text_char << endl;
+    in_file.close();
+    return;
+    */
+    cout << "Starting Encryption..." << endl;
+    
+    //start = clock();
+    a5_init(key, FRAME_NUM, LFSR1, LFSR2, LFSR3);    
+    //while(!in_file.eof())
+    for(int j=0; j<1; ++j)
+    {
+        
+        for(int i=0; i<(NUM_CHAR>>2); ++i)
+        {
+            //in_file >> noskipws >> file_char;
+            //in_file >> noskipws >> file_char;
+            plain_text_buffer[i] = 0;
+            for(int j=0; j<4; ++j)
+            {
+                in_file.get(file_char);
+                //cout << bitset<32>(plain_text_buffer[i]) << " : " << endl << endl;
+                plain_text_buffer[i] |= ( ( plain_text_buffer[i] << 8) |  file_char);
+                ++num_plain_text_char;
+                cout << "char : " << j << " : "<<  bitset<8>(file_char) << endl;
+                cout << bitset<32>(plain_text_buffer[i]) << " : " << endl << endl;
+            }
+            //cout << bitset<32>(plain_text_buffer[i]) << " : " << endl << endl;
+        }
+        start = clock();
+        for(int i=0; i<(NUM_CHAR>>2); ++i)
+        {
+            generate_keystream_32(keystream_32, LFSR1, LFSR2, LFSR3);
+            //cout << keystream_8 << endl;
+            cipher_text_32 = plain_text_buffer[i] ^ keystream_32;
+            //cout << cipher_text_8 << " : " << (cipher_text_8 ^ keystream_8) <<endl;
+            //out_file << cipher_text_8;
+        }
+        end = clock();
+    }
+    //cout << endl << endl;
+    //end = clock();
+    
+    // Profiling results
+    cout << "Encryption Done!" << endl;
+    total_t = (double)(end-start)/CLOCKS_PER_SEC;
+    cout << "Total time for encryption : " << total_t << " seconds" <<endl;
+    cout << "Speed in Mbps : " << ((num_plain_text_char*8)/total_t)/1000000 << endl;
+    cout << "Total number of bits : " << (num_plain_text_char*8) << endl;
+    
+    delete[] plain_text_buffer;
+    
+    // Close files
+    in_file.close();
+    out_file.close();
+}
+
+
+
+void encrypt8_file(char *plaintext_filename, char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
 {
     clock_t start, end;
     double total_t;
@@ -238,7 +327,7 @@ void encrypt_file(char *plaintext_filename, char *ciphertext_filename, char *key
     out_file.close();
 }
 
-void decrypt_file(char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
+void decrypt8_file(char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3)
 {
     clock_t start, end;
     double total_t;

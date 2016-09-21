@@ -7,7 +7,8 @@ using namespace std;
 #define DEBUG
 
 //#define NUM_CHAR (1)
-#define NUM_CHAR (1024*512)
+#define NUM_CHAR (8)
+//#define NUM_CHAR (1024*512)
 
 // Frame number
 #define FRAME_NUM 22
@@ -66,17 +67,17 @@ using namespace std;
 #define LFSR3_CLK_BITP 10
 
 // Tap bits LFSR1
-#define TAP1_BIT_13 13
-#define TAP1_BIT_16 16
-#define TAP1_BIT_17 17
-#define TAP1_BIT_18 18
+#define TAP1_13_BITP 13
+#define TAP1_16_BITP 16
+#define TAP1_17_BITP 17
+#define TAP1_18_BITP 18
 
 // Tap bits LFSR2
-#define TAP2_BIT_20 20
-#define TAP2_BIT_21 21
+#define TAP2_20_BITP 20
+#define TAP2_21_BITP 21
 
 // Tap bits LFSR3
-#define TAP3_BIT_07 7
-#define TAP3_BIT_20 20
-#define TAP3_BIT_21 21
-#define TAP3_BIT_22 22
+#define TAP3_07_BITP 7
+#define TAP3_20_BITP 20
+#define TAP3_21_BITP 21
+#define TAP3_22_BITP 22

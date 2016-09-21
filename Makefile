@@ -3,8 +3,6 @@
 #
 # Coder - Nahit Pawar
 #         PhD Indian Institute of Technology Bombay, India
-# Starting Date  - 10/01/13
-# Last Modified  - 04/08/13
 #
 #----------------------------------------------------------------------------
 
@@ -13,7 +11,7 @@ CFLAGS = -g
 OFLAGS = -g
 RM     = rm
 
-TEST_FILE = medium_test_file.txt 
+TEST_FILE = small_test_file.txt 
 
 EXEC   = a5
 OBJECTS = \

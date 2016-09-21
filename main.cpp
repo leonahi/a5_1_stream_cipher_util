@@ -13,8 +13,10 @@ extern void conditional_shift_left_lfsr(unsigned long &LFSR1, unsigned long &LFS
 extern void a5_init(char *key, unsigned long frame, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3);
 extern void generate_keystream_32(unsigned long &keystream, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3);
 extern void generate_keystream_8(unsigned char &keystream, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3);
-extern void encrypt_file(char *plaintext_filename, char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3);
-extern void decrypt_file(char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3);
+extern void encrypt8_file(char *plaintext_filename, char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3);
+extern void decrypt8_file(char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3);
+extern void encrypt32_file(char *plaintext_filename, char *ciphertext_filename, char *key, unsigned long &LFSR1, unsigned long &LFSR2, unsigned long &LFSR3);
+
 
 int main(int argc, char* argv[])
 {
@@ -30,6 +32,7 @@ int main(int argc, char* argv[])
         cout << "Usage: ./a5 input_filename output_filename passphrase" << endl;
         exit(1);
     }
+    cout << bitset<32>(0xAA << 8) << endl;
     /*
     LFSR1 =0xFFFFFFFF;
     LFSR2 =0xFFFFFFFF;
@@ -39,6 +42,8 @@ int main(int argc, char* argv[])
     cout << "LFSR3 : " << bitset<32>(LFSR3 & LFSR3_BITMASK) << endl;
     
     cout << "majority : " << majority(LFSR1, LFSR2, LFSR3) << endl;
+    shift_left_lfsr(LFSR2, LFSR2_BITMASK, LFSR2_TAP_BITMASK, 2);
+    cout << "LFSR2 : " << bitset<32>(LFSR2 & LFSR2_BITMASK) << endl;
     */
     /*
     shift_left_lfsr(LFSR1, LFSR1_BITMASK, LFSR1_TAP_BITMASK, 1);
@@ -55,9 +60,9 @@ int main(int argc, char* argv[])
     //shift_left_lfsr(LFSR2, LFSR2_BITMASK, LFSR2_TAP_BITMASK, 2);
     shift_left_lfsr(LFSR3, LFSR3_BITMASK, LFSR3_TAP_BITMASK, 3);
     */
-    encrypt_file(argv[1], argv[2], key, LFSR1, LFSR2, LFSR3);
-    //decrypt_file(argv[2], key, LFSR1, LFSR2, LFSR3);
-    
+    //encrypt8_file(argv[1], argv[2], key, LFSR1, LFSR2, LFSR3);
+    //decrypt8_file(argv[2], key, LFSR1, LFSR2, LFSR3);
+    encrypt32_file(argv[1], argv[2], key, LFSR1, LFSR2, LFSR3);
     /*
     unsigned int num=10;
     if (num == 10)
