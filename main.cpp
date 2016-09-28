@@ -32,7 +32,13 @@ int main(int argc, char* argv[])
         cout << "Usage: ./a5 input_filename output_filename passphrase" << endl;
         exit(1);
     }
-    cout << bitset<32>(0xAA << 8) << endl;
+    /*
+    unsigned long temp=0xAA;
+    temp = ((temp << 8) | 0x01);
+    cout << bitset<32>((temp) << endl;
+    temp = ((temp << 8) | 0x02);
+    cout << bitset<32>(temp) << endl;
+    */
     /*
     LFSR1 =0xFFFFFFFF;
     LFSR2 =0xFFFFFFFF;
@@ -60,7 +66,7 @@ int main(int argc, char* argv[])
     //shift_left_lfsr(LFSR2, LFSR2_BITMASK, LFSR2_TAP_BITMASK, 2);
     shift_left_lfsr(LFSR3, LFSR3_BITMASK, LFSR3_TAP_BITMASK, 3);
     */
-    //encrypt8_file(argv[1], argv[2], key, LFSR1, LFSR2, LFSR3);
+    encrypt8_file(argv[1], argv[2], key, LFSR1, LFSR2, LFSR3);
     //decrypt8_file(argv[2], key, LFSR1, LFSR2, LFSR3);
     encrypt32_file(argv[1], argv[2], key, LFSR1, LFSR2, LFSR3);
     /*

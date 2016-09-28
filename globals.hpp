@@ -7,8 +7,8 @@ using namespace std;
 #define DEBUG
 
 //#define NUM_CHAR (1)
-#define NUM_CHAR (8)
-//#define NUM_CHAR (1024*512)
+//#define NUM_CHAR (8)
+#define NUM_CHAR (1024*512)
 
 // Frame number
 #define FRAME_NUM 22
